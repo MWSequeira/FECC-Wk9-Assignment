@@ -26,6 +26,9 @@ Write a Unit Test using Mocha and Chai for at least one of the functions you wri
 // *****************MY CODE BELOW*********************************
 
 // *** GAME SET-UP ***
+// One function: getRandomInt(min, max)
+// Four classes: Card, Deck, Game, Display
+
 
 // GENERATE RANDOM NUMBERS:
 function getRandomInt(min, max) { // Inclusive of the min and max
@@ -94,56 +97,120 @@ class Deck {
     }
 }
 
+// CREATE A GAME CLASS
+class Game {
+  constructor (shuffledDeckArray) {
+    this.gameWarCardDeck = shuffledDeckArray; // pass in a shuffled deck
+  }
+  
+
+  // METHOD to Deal, play and score each round
+  playDealAndScore (array) {
+    // deal all the cards
+    let playerOneHand = []; // cards in player one's hand
+    let playerTwoHand = []; // cards in player two's hand
+    for (let i = 0; i < array.length; i++) {
+      if (i % 2 === 0) { // cards at even indices go to player one
+        playerOneHand.push(array[i]);
+      } else { // cards at odd indices go to player two
+        playerTwoHand.push(array[i]);
+      }
+    }
+  
+    // play and score
+    let round = []; // array to hold round results; round results get pushed into gameArray
+    let gameArray = []; // array to hold game results
+
+    for (let i = 0; i < array.length/2; i++) { // go through all the cards
+      if (playerOneHand[i].value > playerTwoHand[i].value) {
+        round = [i, playerOneHand[i], playerTwoHand[i], 1, 0, 0];
+        gameArray.push(round); // push round to gameArray;
+      } else if (playerOneHand[i].value < playerTwoHand[i].value) {
+        round = [i, playerOneHand[i], playerTwoHand[i], 0, 1, 0];
+        gameArray.push(round); // push round to gameArray;
+      } else if (playerOneHand[i].value === playerTwoHand[i].value) {
+        round = [i, playerOneHand[i], playerTwoHand[i], 0, 0, 1];
+        gameArray.push(round); // push round to gameArray
+      }
+    }
+    
+    // return all the rounds and scores
+    return gameArray;
+  }
+    
+
+  // METHOD to tally all the rounds in the game
+  gameTally (gameArray) {
+    let playerOneScore = 0;
+    let playerTwoScore = 0;
+    let ties = 0; // keep track of ties
+    let winnerArray = []; // holds final game results
+
+    for (let i = 0; i < gameArray.length; i++) { // loop through all the rounds
+      playerOneScore += gameArray[i][3];
+      playerTwoScore += gameArray[i][4];
+      ties += gameArray[i][5];
+    }
+    winnerArray.push(playerOneScore);
+    winnerArray.push(playerTwoScore);
+    winnerArray.push(ties);
+
+    return winnerArray;
+  }
+}
+
+  // CREATE A DISPLAY CLASS
+class Display {
+  constructor (gameArray, winnerArray) {
+    this.gameArray = gameArray;
+    this.winnerArray = winnerArray;
+  }
+
+  displayRoundResults (gameArray) {
+    for (let i = 0; i < gameArray.length; i++) { // loop through all the rounds
+      console.log ("Round " + (gameArray[i][0]+1) + ".\n Player 1: " + gameArray[i][1].suit + gameArray[i][1].value + "\n Player 2: " + gameArray[i][2].suit + gameArray[i][2].value + "\n")
+      if (gameArray[i][3] === 1) {
+        console.log ("Player *ONE* wins this round.");
+      } else if (gameArray[i][4] === 1) {
+        console.log ("Player **TWO** wins this round.");
+      } else if (gameArray[i][5] === 1) {
+        console.log ("This round was a TIE.");
+      }
+    }
+  }
+
+  displayGameResults (winnerArray) {
+    console.log ("Player One's score is: " + winnerArray[0]);
+    console.log ("Player Two's score is: " + winnerArray[1]);
+    console.log ("This game had " + winnerArray[2] + " ties.");
+
+    if (winnerArray[0] > winnerArray[1]) {
+      console.log ("PLAYER ONE WINS !");
+    } else if (winnerArray[0] < winnerArray[1]) {
+      console.log ("PLAYER TWO WINS !");
+    } else if (winnerArray[0] === winnerArray[1]) {
+      console.log ("THE GAME IS TIED !");
+    }
+  }
+}
+
 // *** GAME PLAY STARTS HERE ***
+// Set up the game -- get a shuffled deck of cards
 const myDeck = new Deck(); // create a deck object
 const sortedDeck = myDeck.createDeck(); // create a deck array
 const gameWarCardDeck = myDeck.shuffleDeck(sortedDeck); // shuffle the deck
 
-// DEAL CARDS
-let playerOneHand = []; // cards in player one's hand
-let playerTwoHand = []; // cards in player two's hand
+// play the game and create the tallies for each round and the overall game
+let myGame = new Game(gameWarCardDeck);
+let myRounds = myGame.playDealAndScore(gameWarCardDeck);
+let myTally = myGame.gameTally(myRounds);
+
+// display the results
+let myDisplay = new Display(myRounds, myTally);
+myDisplay.displayRoundResults(myRounds);
+myDisplay.displayGameResults(myTally);
 
 
-for (let i = 0; i < gameWarCardDeck.length; i++) {
-  if (i % 2 === 0) { // cards at even indices go to player one
-    playerOneHand.push(gameWarCardDeck[i]);
-  } else { // cards at odd indices go to player two
-    playerTwoHand.push(gameWarCardDeck[i]);
-  }
-}
-
-// PLAY AND SCORING
-let playerOneScore = 0;
-let playerTwoScore = 0;
-let ties = 0; // keep track of ties
-
-for (let i = 0; i < gameWarCardDeck.length/2; i++) { // go through all the cards
-    console.log(`Round ${i+1}
-        Player One:[${playerOneHand[i].suit} ${playerOneHand[i].value}]
-        Player Two: [${playerTwoHand[i].suit} ${playerTwoHand[i].value}]`)
-  if (playerOneHand[i].value > playerTwoHand[i].value) {
-    playerOneScore += 1;
-    console.log (`Player *One* wins round ${i+1}.`);
-  } else if (playerOneHand[i].value < playerTwoHand[i].value) {
-    playerTwoScore += 1;
-    console.log (`Player TWO wins round ${i+1}.`);
-  } else if (playerOneHand[i].value === playerTwoHand[i].value) {
-    ties += 1; // keeping track of tied rounds
-    console.log (`Round ${i+1} is a tie.`)
-  }
-}
-
-// DISPLAY FINAL SCORES AND WINNER
-console.log(`Player One's score is ${playerOneScore}`);
-console.log(`Player Two's score is ${playerTwoScore}`);
-console.log(`This game had ${ties} tied rounds.`)
-if (playerOneScore > playerTwoScore) {
-  console.log(`Player One wins: ${playerOneScore} to ${playerTwoScore}`);
-} else if (playerOneScore < playerTwoScore) {
-  console.log(`Player Two wins: ${playerTwoScore} to ${playerOneScore}`);
-} else {
-  console.log(`It's a TIE!`)
-}
 
 // export for tests
 // module.exports={Deck} // old way
