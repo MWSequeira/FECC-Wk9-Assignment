@@ -1,0 +1,18 @@
+{
+  "name": "week9",
+  "version": "1.0.0",
+  "main": "wk9-assignment.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "week 9 assignment",
+  "dependencies": {
+    "bootstrap": "^5.3.5",
+    "chai": "^4.3.7",
+    "jquery": "^3.7.1",
+    "mocha": "^10.2.0"
+  }
+}
